@@ -1,4 +1,6 @@
-**Advanced Lane Finding Project**
+```
+1638.   895.Advanced Lane Finding Project**
+```
 
 The goals / steps of this project are the following:
 
@@ -11,9 +13,9 @@ The goals / steps of this project are the following:
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-[//]: # (Image References)
+[//]: # "Image References"
 
-[image1]: ./examples/undistort_output.png "Undistorted"
+[image1]: ./writeup_images/undistort_output.png "Undistorted"
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
@@ -41,10 +43,9 @@ The code for this step is included in the 2nd and the 3rd code cells of Advanced
 
 We needed two arrays of points; `imgpoints` which are 2D points, and `objpoints` which are 3D points but since the chessboard is on a fixed plane we neglected the z direction since it's fixed for all the images and all chessboards have the same points so the `objpoints` are simply repeated for all the images and the `imgpoints` are the points that are successfully detected using the `findChessboardCorners()` function.
 
-Then using the previousn two arrays we compute the camera calibration and distortion coefficients using the `calibrateCamera()` function
+Then using the previous two arrays we compute the camera calibration and distortion coefficients using the `calibrateCamera()` function
 
 
-![alt text][image1]
 
 ### Pipeline (single images)
 
@@ -55,53 +56,72 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+The code for this step is in the 13th code cell, I used a combination between  B channel from the LAB model, L channel from the HLS model and the sobel-gradient in the x direction.
+
+The B channel used mainly to detect the yellow lanes line and the L channel to detect the white lines.
+
+The sobel-gradient on the x direction used to handle cases when B channel and L channel fail.
 
 ![alt text][image3]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The code for transformation is included in the  16th code cell, the function `perspective_transform` uses the `src` and `dst`points calculated int cells 14 and 15, and takes two inputs the `undistorted` to be transformed and `inverse` which indicates if the image is a warped image and need inverse operation or it's a normal image and need warping.
+
+I used some kind of robust technique to generate my `src` points:
+
+`midpoint` using the fact that the camera is at the center of the lane so w get the midpoint of the image 
+
+by`shape[1]//2 `
+
+`nearoffset` is how much want to consider from the left and right sides if the `midpoint`near the bottom of the image
+
+`faroffset` is the same like `nearoffsert` but at distance `length` from the bottom of the image
+
+I hard coded the `dst` values to give me the appropriate results 
 
 ```python
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
+src = np.float32([[midpoint-nearOffset, example_image.shape[0]-bottom_margin],                           [midpoint+nearOffset+30, example_image.shape[0]-bottom_margin],
+                  [midpoint-farOffset, example_image.shape[0]-length],                                   [midpoint+farOffset, example_image.shape[0]-length]])
+
+dst = np.float32([[25, example_image.shape[0]-25], 
+                  [example_image.shape[1]-25, example_image.shape[0]-25],
+                  [25,25], 
+                  [example_image.shape[1]-25, 25]])
 ```
 
 This resulted in the following source and destination points:
 
-| Source        | Destination   | 
-|:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+|  Source  | Destination |
+| :------: | :---------: |
+|  0,895   |   25,870    |
+| 1638,895 |  1584,870   |
+| 644,597  |    25,25    |
+| 964,597  |   1584,25   |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart.
 
 ![alt text][image4]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+the code for the lane-line pixels included in code cells 19 and 21, I use `histo_finding_lane()` function on the first frame to find an initial polynomial function that fit the curves and then use `margin_finding_lane()`that uses previously computed polynomials in the next frames
 
 ![alt text][image5]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+I did this in code cells 23 and 24. I defined conversions in x and y from pixels space to meters and fitted new polynomials to x,y in world space. Moreover, calculated the radius of curvature in meters.
+
+`car` is the location of the car which is the center of the image assuming the camera is  mounted on the center of the car
+
+`lane_center` is calculated using the polynomials of the image values to get the value at the bottom of the image for the two bounding lines of the lane and get their average
+
+`center_distance` is  the position of the vehicle with respect to center calculated by subtracting the `lane_center` from the `car` and multiply by meters per pixel in x dimension
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+the code for the pipeline the found in the code cell number 28
 
 ![alt text][image6]
 
@@ -119,4 +139,6 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+Most of the problems i faced was due to the light conditions and some defects in the road, for example in the challenge video the black lines next to the white lines of the lane wee considered as lane lines till i used the LAB and HLS models with the help of sobel gradient in the x direction
+
+
