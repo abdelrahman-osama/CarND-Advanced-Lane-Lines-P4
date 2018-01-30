@@ -139,6 +139,6 @@ Here's a [link to my video result](./project_video_output.mp4) and here's a link
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Most of the problems i faced was due to the light conditions and some defects in the road, for example in the challenge video the black lines next to the white lines of the lane wee considered as lane lines till i used the LAB and HLS models with the help of sobel gradient in the x direction
+Most of the problems I faced was due to the light conditions and some defects in the road, for example in the challenge video the black lines next to the white lines of the lane were considered as lane lines till I used the LAB and HLS models with the help of sobel gradient in the x direction. My pipeline is likely to fail when the car goes on hard turns like in the harder challenge video, as the sanity check ignores the high curvature as it compares it to the past history and stays with the average computed from the history. A solution for this may be allowing a higher tolerance in the sanity check or taking into consideration less samples from the history. 
 
 
