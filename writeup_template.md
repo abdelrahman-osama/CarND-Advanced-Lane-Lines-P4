@@ -15,7 +15,7 @@ The goals / steps of this project are the following:
 
 [//]: # "Image References"
 
-[image1]: ./writeup_images/undistort_output.png "Undistorted"
+[image1]: ./writeup_imgs/1.jpg "Undistorted"
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
@@ -45,6 +45,7 @@ We needed two arrays of points; `imgpoints` which are 2D points, and `objpoints`
 
 Then using the previous two arrays we compute the camera calibration and distortion coefficients using the `calibrateCamera()` function
 
+![alt text][image1]
 
 
 ### Pipeline (single images)
