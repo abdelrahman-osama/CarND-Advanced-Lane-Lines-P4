@@ -39,7 +39,7 @@ You're reading it!
 
 The code for this step is included in the 2nd and the 3rd code cells of Advanced-Lane-Finding.ipynb.
 
-We needed to arrays of points; `imgpoints` which are 2D points, and `objpoints` which are 3D points but since the chessboard is on a fixed plane we neglected the z direction since it's fixed for all the images and all chessboards have the same points so the `objpoints` are simply repeated for all the images and the `imgpoints` are the points that are successfully detected using the `findChessboardCorners()` function.
+We needed two arrays of points; `imgpoints` which are 2D points, and `objpoints` which are 3D points but since the chessboard is on a fixed plane we neglected the z direction since it's fixed for all the images and all chessboards have the same points so the `objpoints` are simply repeated for all the images and the `imgpoints` are the points that are successfully detected using the `findChessboardCorners()` function.
 
 Then using the previousn two arrays we compute the camera calibration and distortion coefficients using the `calibrateCamera()` function
 
